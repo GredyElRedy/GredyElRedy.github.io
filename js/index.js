@@ -1,98 +1,54 @@
-const media = {
-  card: (i, item, type, extension) => {
-    const cardI = document.createElement("div");
-    const isImage = type === "img";
-    const url = URL.createObjectURL(item);
-    cardI.innerHTML = `
-    <${type} src="${url}" class="card-img-top" ${
-      isImage ? "" : "controls"
-    } alt="such a great Gredy">
-    ${isImage ? "" : "</video>"}
-    <div class="card-body">
-      <h5 class="card-title">Foto ${i}</h5>
-      <input class="input-group" onkeydown='storageMedia(event,${JSON.stringify(
-        {
-          i,
-          url,
-          type,
-          extension,
-        }
-      )})' id="input${i}" placeholder="tag1 tag2 tag3...">
-    </div>`;
-    cardI.setAttribute("class", "card");
-    cardI.id = `card${i}`;
-    return cardI;
-  },
-};
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <label class="btn">
+      New miaultimedia
+      <input
+        type="file"
+        multiple
+        class="button"
+        style="display: none;"
+        onchange="uploadMedia(event)"
+        accept="image/*,video/*"
+        id="newFile"
+    /></label>
+    <div id="wrapper"></div>
+    <a class="return" href="../index.html">Back~</a>
 
-// function showItems() {
-//   return firebase.storage().ref().listAll();
-// }
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
 
-// showItems().then(({ items }) => {
-//   for (const item of items) {
-//     item.getDownloadURL().then((url) => {
-//       const newImageFrame = document.createElement("img");
-//       newImageFrame.src = url;
-//       newImageFrame.onerror = urlVideo;
-//       document.querySelector("#wrapper").appendChild(newImageFrame);
-//     });
-//   }
-// });
-
-uploadMedia();
-
-function uploadMedia({ target }) {
-  const wrapper = document.querySelector("#wrapper");
-  let i = wrapper.children ? wrapper.children.length : 0;
-  for (const item of target.files) {
-    const type = item.type.startsWith("image/") ? "img" : "video";
-    const newMediaFrame = media.card(i, item, type, item.type);
-    newMediaFrame.onload = function () {
-      URL.revokeObjectURL(this.src);
-    };
-    wrapper.appendChild(newMediaFrame);
-    i++;
-  }
-}
-
-async function storageMedia(event, { i, url, type, extension }) {
-  if (event.keyCode === 13) {
-    const blob = await fetch(url).then((r) => r.blob());
-    const tags = document.querySelector(`#input${i}`).value.trim().split(" ");
-    const mediasId = firebase.database().ref().push().key;
-    const storageRef = firebase.storage().ref();
-    try {
-      const newFileRef = await storageRef
-        .child(`${type}/${mediasId}.${extension.split("/")[1]}`)
-        .put(blob);
-      const newUrl = await newFileRef.ref.getDownloadURL();
-      firebase.database().ref(mediasId).set({ type, url: newUrl, tags });
-      document.querySelector(`#card${i}`).remove();
-    } catch (e) {
-      console.log(e);
-    }
-  }
-}
-
-// let counter = 0;
-// async function techero() {
-//   const { items } = await showItems();
-//   for (const item of items) {
-//     const metadata = await item.getMetadata();
-//     // const url = await item.getDownloadURL();
-//     // const ref = firebase.database().ref((counter++).toString());
-//     // const json = ref.toJSON();
-//     // if (!json.url) ref.set({ url, tags: json.tags || [""] });
-//     console.log(metadata);
-//   }
-// }
-// // showItems().then(console.log);
-// // techero();
-// console.log(
-//   firebase
-//     .database()
-//     .ref("500")
-//     .once("value")
-//     .then((snapshot) => console.log(snapshot.val()))
-// );
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/index.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
