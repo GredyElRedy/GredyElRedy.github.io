@@ -56,25 +56,23 @@ function uploadMedia({ target }) {
 
 async function storageMedia(event, { i, url, type, extension }) {
   event.preventDefault();
-  if (event.keyCode === 13) {
-    const blob = await fetch(url).then((r) => r.blob());
-    const tags = document
-      .querySelector(`#input${i}`)
-      .value.trim()
-      .toLoweCase()
-      .split(" ");
-    const mediasId = firebase.database().ref().push().key;
-    const storageRef = firebase.storage().ref();
-    try {
-      const newFileRef = await storageRef
-        .child(`${type}/${mediasId}.${extension.split("/")[1]}`)
-        .put(blob);
-      const newUrl = await newFileRef.ref.getDownloadURL();
-      firebase.database().ref(mediasId).set({ type, url: newUrl, tags });
-      document.querySelector(`#card${i}`).remove();
-    } catch (e) {
-      console.log(e);
-    }
+  const blob = await fetch(url).then((r) => r.blob());
+  const tags = document
+    .querySelector(`#input${i}`)
+    .value.trim()
+    .toLoweCase()
+    .split(" ");
+  const mediasId = firebase.database().ref().push().key;
+  const storageRef = firebase.storage().ref();
+  try {
+    const newFileRef = await storageRef
+      .child(`${type}/${mediasId}.${extension.split("/")[1]}`)
+      .put(blob);
+    const newUrl = await newFileRef.ref.getDownloadURL();
+    firebase.database().ref(mediasId).set({ type, url: newUrl, tags });
+    document.querySelector(`#card${i}`).remove();
+  } catch (e) {
+    console.log(e);
   }
 }
 
