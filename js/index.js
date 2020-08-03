@@ -1,5 +1,5 @@
 const media = {
-  card: (i, item, type, extension) => {
+  card(i, item, type, extension) {
     const cardI = document.createElement("div");
     const isImage = type === "img";
     const url = URL.createObjectURL(item);
@@ -25,6 +25,22 @@ const media = {
   },
 };
 
+function getTags() {
+  firebase
+    .database()
+    .ref()
+    .once("value")
+    .then(
+      (snapshot) =>
+        new Set(
+          Object.values(snapshot.val())
+            .map((media) => media.tags)
+            .reduce((a, b) => a.concat(b))
+        )
+    )
+    .then(console.log);
+}
+getTags();
 // function showItems() {
 //   return firebase.storage().ref().listAll();
 // }
@@ -56,7 +72,7 @@ function uploadMedia({ target }) {
 
 async function storageMedia(event, { i, url, type, extension }) {
   event.preventDefault();
-    document.querySelector("#input" + i).disabled = true;
+  document.querySelector("#input" + i).disabled = true;
   const blob = await fetch(url).then((r) => r.blob());
   const tags = document
     .querySelector(`#input${i}`)
