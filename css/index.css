@@ -3,6 +3,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100vh;
+  width: 100vw;
 }
 
 #wrapper {
@@ -25,7 +27,8 @@ img {
   width: fit-content;
 }
 
-label.btn {
+label.btn,
+a.btn {
   width: 90%;
   margin: 2rem;
   background: linear-gradient(to bottom, coral 0%, rgb(233, 105, 58) 80%);
@@ -38,16 +41,32 @@ label.btn {
   box-shadow: -1px 13px 41px -6px rgba(0, 0, 0, 0.4);
 }
 
-label.btn:hover {
+a.btn {
+  align-items: center;
+}
+
+.aContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+label.btn:hover,
+a.btn:hover,
+.return:hover {
   background: linear-gradient(
     to bottom,
     rgb(253, 132, 88) 0%,
     rgb(236, 113, 68) 80%
   );
   color: rgb(92, 18, 18);
+  text-decoration: none;
 }
 
-label.btn:active {
+label.btn:active,
+a.btn:active .return:active {
   background: linear-gradient(
     to bottom,
     rgb(252, 112, 62) 0%,
@@ -66,4 +85,20 @@ div.card-body {
 
 div.card-body h5 {
   color: rgb(92, 18, 18);
+}
+
+.return {
+  width: 10%;
+  margin: 1rem 0 0 0;
+  background: linear-gradient(to bottom, coral 0%, rgb(233, 105, 58) 80%);
+  height: 2rem;
+  position: fixed;
+  top: 92.5vh;
+  left: 1.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font: 16px Arial, Helvetica, sans-serif;
+  color: rgb(104, 20, 20);
+  border-radius: 4px;
 }
