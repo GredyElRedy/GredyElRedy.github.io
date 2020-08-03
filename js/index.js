@@ -56,6 +56,7 @@ function uploadMedia({ target }) {
 
 async function storageMedia(event, { i, url, type, extension }) {
   event.preventDefault();
+    document.querySelector("#input" + i).disabled = true;
   const blob = await fetch(url).then((r) => r.blob());
   const tags = document
     .querySelector(`#input${i}`)
