@@ -60,7 +60,7 @@ async function storageMedia(event, { i, url, type, extension }) {
   const tags = document
     .querySelector(`#input${i}`)
     .value.trim()
-    .toLoweCase()
+    .toLowerCase()
     .split(" ");
   const mediasId = firebase.database().ref().push().key;
   const storageRef = firebase.storage().ref();
