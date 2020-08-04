@@ -9,7 +9,7 @@ const media = {
     } alt="such a great Gredy">
     ${isImage ? "" : "</video>"}
     <div class="card-body">
-      <h5 class="card-title">Foto ${i}</h5>
+      <h5 class="card-title">Gredy ${i}</h5>
       <form onsubmit='storageMedia(event,${JSON.stringify({
         i,
         url,
@@ -23,38 +23,104 @@ const media = {
     cardI.id = `card${i}`;
     return cardI;
   },
+  searched(url, type, tags) {
+    const cardI = document.createElement("div");
+    const isImage = type === "img";
+    cardI.innerHTML = `
+    <${type} src="${url}" class="card-img-top" ${
+      isImage ? "" : "controls"
+    } alt="such a great Gredy">
+    ${isImage ? "" : "</video>"}
+    <div class="card-body">
+      <h5 class="card-title">${tags}</h5>
+    </div>`;
+    cardI.setAttribute("class", "card");
+    return cardI;
+  },
+  option(tag) {
+    const option = document.createElement("option");
+    option.innerText = tag;
+    return option;
+  },
+  media: {},
 };
 
-function getTags() {
-  firebase
-    .database()
-    .ref()
-    .once("value")
-    .then(
-      (snapshot) =>
-        new Set(
-          Object.values(snapshot.val())
-            .map((media) => media.tags)
-            .reduce((a, b) => a.concat(b))
-        )
-    )
-    .then(console.log);
-}
-getTags();
-// function showItems() {
-//   return firebase.storage().ref().listAll();
-// }
+firebase
+  .database()
+  .ref()
+  .on("value", (snapshot) => {
+    media.media = snapshot.val();
+    if (window.location.href.endsWith("viewfiles.html")) {
+      chargeTags();
+      $("select").selectpicker();
+    } else if (window.location.href.endsWith("updatefiles.html")) {
+      document.querySelector("p").innerHTML =
+        "<b>Recomendación de tags:</b> " + [...getTags()].join(" ");
+    }
+  });
 
-// showItems().then(({ items }) => {
-//   for (const item of items) {
-//     item.getDownloadURL().then((url) => {
-//       const newImageFrame = document.createElement("img");
-//       newImageFrame.src = url;
-//       newImageFrame.onerror = urlVideo;
-//       document.querySelector("#wrapper").appendChild(newImageFrame);
-//     });
-//   }
-// });
+function getTags() {
+  return new Set(
+    Object.values(media.media)
+      .map((media) => media.tags)
+      .reduce((a, b) => a.concat(b), [])
+  );
+}
+
+function getPhotoRandom(e) {
+  e.preventDefault();
+  const items = Object.values(media.media);
+  const random = Math.floor(Math.random() * items.length);
+  const item = items[random];
+  const newMedia = document.createElement(item.type);
+  newMedia.src = item.url;
+  newMedia.setAttribute("class", "media-random");
+  const wrapper = document.querySelector("#wrapper-view");
+  cleanWrapper(wrapper);
+  wrapper.appendChild(newMedia);
+}
+
+function cleanWrapper(wrapper) {
+  while (wrapper.firstChild) {
+    wrapper.removeChild(wrapper.firstChild);
+  }
+}
+
+const filterValues = (val, type) => val.filter((elem) => elem.type === type);
+const unionIntersect = (val, selected, fn) =>
+  val.filter((elem) => selected[fn]((tag) => elem.tags.includes(tag)));
+
+function searchByTag(e) {
+  e.preventDefault();
+  const selected = {
+    tags: [...document.querySelectorAll('[label="Tags"] > :checked')].map(
+      (option) => option.innerText
+    ),
+    type: [...document.querySelectorAll('[label="Type"] > :checked')].map(
+      (option) => option.innerText
+    ),
+  };
+  const checkBox = document.querySelector('[type="checkbox"]');
+  const values = Object.values(media.media).filter(({ type, tags }) => {
+    if (checkBox.checked) {
+      // Union
+      return (
+        selected.tags.some((tag) => tags.includes(tag)) ||
+        selected.type.includes(type)
+      );
+    }
+    return (
+      selected.tags.every((tag) => tags.includes(tag)) &&
+      (selected.type.length === 0 || selected.type.includes(type))
+    );
+  });
+  const wrapper = document.querySelector("#wrapper-view");
+  cleanWrapper(wrapper);
+  for (const { tags, type, url } of values) {
+    const newMiauravilla = media.searched(url, type, tags);
+    wrapper.appendChild(newMiauravilla);
+  }
+}
 
 function uploadMedia({ target }) {
   const wrapper = document.querySelector("#wrapper");
@@ -93,24 +159,10 @@ async function storageMedia(event, { i, url, type, extension }) {
   }
 }
 
-// let counter = 0;
-// async function techero() {
-//   const { items } = await showItems();
-//   for (const item of items) {
-//     const metadata = await item.getMetadata();
-//     // const url = await item.getDownloadURL();
-//     // const ref = firebase.database().ref((counter++).toString());
-//     // const json = ref.toJSON();
-//     // if (!json.url) ref.set({ url, tags: json.tags || [""] });
-//     console.log(metadata);
-//   }
-// }
-// // showItems().then(console.log);
-// // techero();
-// console.log(
-//   firebase
-//     .database()
-//     .ref("500")
-//     .once("value")
-//     .then((snapshot) => console.log(snapshot.val()))
-// );
+function chargeTags() {
+  const tags = [...getTags()].sort();
+  for (const tag of tags) {
+    const option = media.option(tag);
+    document.querySelector('optgroup[label="Tags"]').appendChild(option);
+  }
+}
